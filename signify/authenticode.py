@@ -156,7 +156,7 @@ class SignedData(object):
             raise AuthenticodeParseError("SignedData.crls is present, but that is unexpected.")
 
     def verify(self, expected_hash=None, verification_context=None, cs_verification_context=None,
-               verification_context_kwargs={}):
+               default_store=TRUSTED_CERTIFICATE_STORE, verification_context_kwargs={}):
         """Verifies the SignedData structure:
 
         * Verifies that the digest algorithms match across the structure
@@ -225,13 +225,13 @@ class SignedData(object):
                                                     'countersigner\'s SignerInfo')
 
         if verification_context is None:
-            verification_context = VerificationContext(TRUSTED_CERTIFICATE_STORE, self.certificates,
+            verification_context = VerificationContext(default_store, self.certificates,
                                                        extended_key_usages=['code_signing'],
                                                        **verification_context_kwargs)
 
         if self.signer_info.countersigner:
             if cs_verification_context is None:
-                cs_verification_context = VerificationContext(TRUSTED_CERTIFICATE_STORE, self.certificates,
+                cs_verification_context = VerificationContext(default_store, self.certificates,
                                                               extended_key_usages=['time_stamping'],
                                                               **verification_context_kwargs)
             cs_verification_context.timestamp = self.signer_info.countersigner.signing_time
